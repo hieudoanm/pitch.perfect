@@ -1,4 +1,4 @@
-import { twinkleTwinkle } from '@pitch.perfect/data/twinkle-twinkle';
+import { twinkleTwinkle } from '@pitch.perfect/data/twinkle-twinkle-little-star';
 import { NextPage } from 'next';
 import { useEffect, useRef, useState } from 'react';
 
@@ -24,6 +24,20 @@ const blackKeys = [
 
 const allNotes = [...whiteKeys, ...blackKeys];
 
+const levels: string[][] = [
+  ['c', 'd'],
+  ['c', 'cs', 'd'],
+  ['c', 'cs', 'd', 'ds'],
+  ['c', 'cs', 'd', 'ds', 'e'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs', 'a'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs', 'a', 'as'],
+  ['c', 'cs', 'd', 'ds', 'e', 'f', 'fs', 'g', 'gs', 'a', 'as', 'b'],
+];
+
 const HomePage: NextPage = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -38,6 +52,7 @@ const HomePage: NextPage = () => {
     wrongId?: string;
   } | null>(null);
   const [highlightedKey, setHighlightedKey] = useState<string | null>(null);
+  const [level, setLevel] = useState(1);
 
   useEffect(() => {
     const saved = localStorage.getItem('pitch-high-score');
@@ -80,9 +95,12 @@ const HomePage: NextPage = () => {
   };
 
   const nextRound = () => {
-    const random = allNotes[Math.floor(Math.random() * allNotes.length)];
-    setTarget(random.id);
-    playTone(random.id);
+    const availableNotes = levels[level - 1];
+    const random =
+      availableNotes[Math.floor(Math.random() * availableNotes.length)];
+
+    setTarget(random);
+    playTone(random);
   };
 
   const startGame = () => {
@@ -100,6 +118,10 @@ const HomePage: NextPage = () => {
 
       const newScore = score + 1;
       setScore(newScore);
+
+      if (newScore % 10 === 0 && level < levels.length) {
+        setLevel(level + 1);
+      }
 
       setTimeout(() => {
         setFeedback(null);
@@ -152,7 +174,7 @@ const HomePage: NextPage = () => {
             Pitch Trainer
           </div>
           <div className="text-lg font-bold text-gray-700">
-            Score: {score} | High: {highScore}
+            Level {level} | Score: {score} | High: {highScore}
           </div>
         </div>
 
